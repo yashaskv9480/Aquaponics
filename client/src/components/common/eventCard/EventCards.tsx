@@ -6,6 +6,7 @@ export interface Event {
   id: number;
   name: string;
   description: string;
+  thumbnailUrl: string;
   startingDate: Date;
   endingDate: Date;
   type: string;

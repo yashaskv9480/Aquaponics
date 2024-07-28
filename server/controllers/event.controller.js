@@ -1,64 +1,56 @@
 const { Op } = require("sequelize");
 const db = require("../models");
 const Event = db.event;
-
-exports.eventsPage = (req, res) => {
-  res
-    .status(200)
-    .send("This is where all the events from the database will be returned");
-};
-
-exports.eventPage = (req, res) => {
-  res
-    .status(200)
-    .send(
-      "This is where all the details of an specific event will be returned"
-    );
-};
+const upload = require('../middleware/multer');
 
 // Create an event
-exports.createEvent = (req, res) => {
-  const {
-    name,
-    description,
-    startingDate,
-    endingDate,
-    type,
-    location,
-    slug,
-    maxAttendees,
-  } = req.body;
-  const userId = req.userId;
+exports.createEvent = [
+  upload.single('thumbnail'), // 'thumbnail' is the name of the field in your form
+  (req, res) => {
+    const {
+      name,
+      description,
+      startingDate,
+      endingDate,
+      type,
+      location,
+      slug,
+      maxAttendees,
+    } = req.body;
+    const userId = req.userId;
+    // Check all required fields
+    if (
+      !name ||
+      !description ||
+      !startingDate ||
+      !endingDate ||
+      !type ||
+      !location ||
+      !slug ||
+      !maxAttendees ||
+      !req.file // Check if file is uploaded
+    ) {
+      res.status(400).send({
+        message: "All fields are required!",
+      });
+      return;
+    }
 
-  // Check all required fields
-  if (
-    !name ||
-    !description ||
-    !startingDate ||
-    !endingDate ||
-    !type ||
-    !location ||
-    !slug ||
-    !maxAttendees
-  ) {
-    res.status(400).send({
-      message: "All fields are required!",
-    });
-    return;
-  }
-
-  // Create an event
-  Event.create({
-    name,
-    description,
-    startingDate,
-    endingDate,
-    type,
-    location,
-    slug,
-    maxAttendees,
-    userId, // Set the userId to the user's id
-  })
+    // Get the URL of the uploaded file
+    const thumbnailUrl = `${req.protocol}://localhost:8080/uploads/${req.file.filename}`;
+    // Create an event with thumbnail URL
+    Event.create({
+      name,
+      description,
+      startingDate,
+      endingDate,
+      type,
+      location,
+      slug,
+      maxAttendees,
+      userId, // Set the userId to the user's id
+      thumbnailUrl: thumbnailUrl, // Save the thumbnail URL in the database
+    })
     .then((data) => {
       res.send({ event: data, message: "Event created successfully." });
     })
@@ -67,7 +59,9 @@ exports.createEvent = (req, res) => {
         message: err.message || "Some error occurred while creating the Event.",
       });
     });
-};
+  }
+];
+
 
 exports.fetchEvents = (req, res) => {
   const { type = "all", limit = 10, offset = 0 } = req.query;
@@ -196,4 +190,24 @@ exports.checkEventSlug = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while checking the slug.' });
   }
+};
+
+// Fetch admin events
+exports.fetchAdminEvents = (req, res) => {
+  const { limit = 10, offset = 0 } = req.query;
+  const userId = req.userId; // Assuming userId is available in the request
+
+  Event.findAll({
+    where: { userId },
+    limit,
+    offset
+  })
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving events.",
+      });
+    });
 };

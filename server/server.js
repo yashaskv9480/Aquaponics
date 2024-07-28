@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const multer = require('multer');
 const cors = require("cors");
 
 const app = express();
@@ -12,7 +13,9 @@ var corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
 
+// Connection to the database
 const db = require("./models");
 const Role = db.role;
 const User = db.user;
@@ -45,11 +48,13 @@ db.sequelize.sync();
 
 // routes
 require("./routes/auth.routes")(app);
-require("./routes/user.routes")(app);
 require("./routes/event.routes")(app);
 require("./routes/ticketType.routes")(app);
 require("./routes/ticketSale.routes")(app);
 require("./routes/task.routes")(app);
+require('./routes/upload.routes')(app);
+require("./routes/user.routes")(app);
+require("./routes/manager.routes")(app);
 
 app.get("/home", (req, res) => {
   res.json({ message: "WELCOME TO AQUAPONICS!!!" });

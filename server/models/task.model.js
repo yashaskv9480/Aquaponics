@@ -12,8 +12,11 @@ module.exports = (sequelize, Sequelize) => {
           key: 'id'
         }
       },
+      title: {
+        type: Sequelize.TEXT
+      },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       status: {
         type: Sequelize.STRING,

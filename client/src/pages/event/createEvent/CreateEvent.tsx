@@ -50,14 +50,13 @@ import api from "@/services/api";
 import eventService from "@/services/event/event.service";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import AdminSidebarNav from "@/pages/admin/components/AdminSidebarNav";
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
   description: z.string(),
+  thumbnail: z.instanceof(File),
   startingDate: z.date(),
   endingDate: z.date(),
   type: z.string(),
@@ -96,14 +95,27 @@ const CreateEvent = () => {
 
   // Define submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Add data to values
-    const eventData = {
-      ...values,
-      userId: userId,
-    };
+    const formData = new FormData();
+
+    // Dynamically append fields to formData
+    Object.entries(values).forEach(([key, value]) => {
+      if (value instanceof File) {
+        formData.append(key, value, value.name);
+      } else if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      } else if (typeof value === "number") {
+        formData.append(key, value.toString()); // Convert numbers to strings
+      } else {
+        formData.append(key, value); // For strings
+      }
+    });
+
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(key, value);
+    // }
     // Call `createEvent` with the form values.
     eventService
-      .createEvent(eventData)
+      .createEvent(formData)
       .then((data) => {
         console.log("Event created successfully:", data);
         toast({
@@ -140,10 +152,13 @@ const CreateEvent = () => {
   };
 
   return (
-    <DashboardLayout  title="Create Event" MenuComponent={<AdminSidebarNav/>}>
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Existing FormField for 'name' */}
+      <form
+        encType="multipart/form-data"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8"
+      >
+        {/* FormField for 'name' */}
         <FormField
           control={form.control}
           name="name"
@@ -180,6 +195,34 @@ const CreateEvent = () => {
             </FormItem>
           )}
         />
+        {/* FormField for 'thumbnail' */}
+        <FormField
+          control={form.control}
+          name="thumbnail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Thumbnail</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  {...{ ...field, value: undefined }} // Ensure that the value prop is not passed to the file input
+                  onChange={(event) => {
+                    // Update the form state with the selected file
+                    const file = event.target.files
+                      ? event.target.files[0]
+                      : null;
+                    field.onChange(file); // Use field.onChange to update react-hook-form state
+                  }}
+                />
+              </FormControl>
+              <FormDescription>
+                This is the thumbnail for the event.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Columns for date picking */}
         <div className="flex flex-col sm:flex-col md:flex-row lg:flex-row space-y-10 lg:space-y-0">
           <div className="w-full md:w-1/2 lg:w-1/2">
@@ -262,7 +305,9 @@ const CreateEvent = () => {
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date < startingDate}
+                        disabled={(date) =>
+                          date < form.getValues("startingDate")
+                        }
                         initialFocus
                       />
                     </PopoverContent>
@@ -418,6 +463,7 @@ const CreateEvent = () => {
                     <FaCircleMinus className="h-8 w-8 text-neutral-50" />
                   </Button>
                   <Input
+                    type="number"
                     className="w-full lg:w-1/2 md:w-3/4"
                     placeholder="10"
                     {...field}
@@ -447,7 +493,6 @@ const CreateEvent = () => {
         </Button>
       </form>
     </Form>
-    </DashboardLayout>
   );
 };
 

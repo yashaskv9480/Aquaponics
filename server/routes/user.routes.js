@@ -17,6 +17,15 @@ module.exports = function(app) {
     controller.assignRole
   );
   
+
+  // Get the list of users by email partials
+
+  app.get(
+    "/fetch-users-by-email-partials/",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.fetchUsersByEmailPartial
+  );
+
   // Get your user dashboard
   app.get(
     "/user/:username/",

@@ -1,33 +1,22 @@
 import api from "../api";
 
-interface Event {
-    name: string;
-    description: string;
-    startingDate: Date;
-    endingDate: Date;
-    type: string;
-    location: string;
-    slug: string;
-    maxAttendees: number;
-    userId: number;
-  }
+// createEvent function to accept FormData instead of Event
+const createEvent = async (formData: FormData) => {
+  try {
+    // The content-type header is set to 'multipart/form-data' by default when passing FormData to axios
+    const response = await api.post("/create-event/", formData);
 
-// Create Event
-const createEvent = async (event: Event) => {
-    try {
-      const response = await api.post('/create-event/', event);
-    
-      if (response.data) {
-        return response.data;
-      }
-    } catch (error) {
-      console.error('There was an error!', error);
-      throw error;
+    if (response.data) {
+      return response.data;
     }
-  };
+  } catch (error) {
+    console.error("There was an error!", error);
+    throw error;
+  }
+};
 
-  const eventService = {
-    createEvent,
-  };
-  
-  export default eventService;
+const eventService = {
+  createEvent,
+};
+
+export default eventService;

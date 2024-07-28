@@ -25,8 +25,6 @@ import {
 } from "@/components/ui/select";
 import ticketService from "@/services/ticket/ticket.service";
 import { toast } from "@/components/ui/use-toast";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import AdminSidebarNav from "@/pages/admin/components/AdminSidebarNav";
 
 const formSchema = z.object({
   price: z.coerce.number().min(0),
@@ -79,120 +77,118 @@ const CreateTicketType = () => {
 
   return (
     <>
-      <DashboardLayout title="Create Event" MenuComponent={<AdminSidebarNav />}>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* FormField for type */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ticket Type</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedType(value); // Update the selected type
-                      if (value === "free") {
-                        form.setValue("price", 0); // Set the price to 0 in the form's internal state
-                      }
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select the type of ticket you want to create..." />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="original">Original</SelectItem>
-                      <SelectItem value="discounted">Discounted</SelectItem>
-                      <SelectItem value="free">Free</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Select the type of event you want to host
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* FormField for price */}
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price of the ticket</FormLabel>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* FormField for type */}
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ticket Type</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setSelectedType(value); // Update the selected type
+                    if (value === "free") {
+                      form.setValue("price", 0); // Set the price to 0 in the form's internal state
+                    }
+                  }}
+                  defaultValue={field.value}
+                >
                   <FormControl>
-                    <div className="flex justify-start items-center">
-                      <Button
-                        type="button"
-                        className="mr-5"
-                        disabled={selectedType === "free"} // Disable the button if the selected type is 'free'
-                        onClick={() => {
-                          if (Number(field.value) > 0) {
-                            field.onChange(Number(field.value) - 1);
-                          }
-                        }}
-                      >
-                        <FaCircleMinus className="h-8 w-8 text-neutral-50" />
-                      </Button>
-                      <Input
-                        className="w-full lg:w-1/2 md:w-3/4"
-                        placeholder="10"
-                        disabled={selectedType === "free"} // Disable the input if the selected type is 'free'
-                        {...field}
-                        value={selectedType === "free" ? 0 : field.value} // Set the value to 0 if the selected type is 'free'
-                      />
-                      <Button
-                        type="button"
-                        className="ml-5"
-                        disabled={selectedType === "free"} // Disable the button if the selected type is 'free'
-                        onClick={() => {
-                          field.onChange(Number(field.value) + 1);
-                        }}
-                      >
-                        <FaCirclePlus className="h-8 w-8 text-neutral-50" />
-                      </Button>
-                    </div>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select the type of ticket you want to create..." />
+                    </SelectTrigger>
                   </FormControl>
-
-                  <FormDescription>
-                    Set the price of the ticket type
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* FormField for couponCode */}
-            <FormField
-              control={form.control}
-              name="couponCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Coupon Code</FormLabel>
-                  <FormControl>
+                  <SelectContent>
+                    <SelectItem value="original">Original</SelectItem>
+                    <SelectItem value="discounted">Discounted</SelectItem>
+                    <SelectItem value="free">Free</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Select the type of event you want to host
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* FormField for price */}
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price of the ticket</FormLabel>
+                <FormControl>
+                  <div className="flex justify-start items-center">
+                    <Button
+                      type="button"
+                      className="mr-5"
+                      disabled={selectedType === "free"} // Disable the button if the selected type is 'free'
+                      onClick={() => {
+                        if (Number(field.value) > 0) {
+                          field.onChange(Number(field.value) - 1);
+                        }
+                      }}
+                    >
+                      <FaCircleMinus className="h-8 w-8 text-neutral-50" />
+                    </Button>
                     <Input
-                      placeholder="Coupon Code"
-                      disabled={selectedType === "original"}
+                      className="w-full lg:w-1/2 md:w-3/4"
+                      placeholder="10"
+                      disabled={selectedType === "free"} // Disable the input if the selected type is 'free'
                       {...field}
-                      value={selectedType === "original" ? "" : field.value}
+                      value={selectedType === "free" ? 0 : field.value} // Set the value to 0 if the selected type is 'free'
                     />
-                  </FormControl>
-                  <FormDescription>
-                    Create a coupon for your customers to use
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full">
-              Create Ticket Type
-            </Button>
-          </form>
-        </Form>
-      </DashboardLayout>
+                    <Button
+                      type="button"
+                      className="ml-5"
+                      disabled={selectedType === "free"} // Disable the button if the selected type is 'free'
+                      onClick={() => {
+                        field.onChange(Number(field.value) + 1);
+                      }}
+                    >
+                      <FaCirclePlus className="h-8 w-8 text-neutral-50" />
+                    </Button>
+                  </div>
+                </FormControl>
+
+                <FormDescription>
+                  Set the price of the ticket type
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* FormField for couponCode */}
+          <FormField
+            control={form.control}
+            name="couponCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Coupon Code</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Coupon Code"
+                    disabled={selectedType === "original"}
+                    {...field}
+                    value={selectedType === "original" ? "" : field.value}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Create a coupon for your customers to use
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="w-full">
+            Create Ticket Type
+          </Button>
+        </form>
+      </Form>
     </>
   );
 };

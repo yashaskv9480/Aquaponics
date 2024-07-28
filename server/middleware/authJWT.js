@@ -128,7 +128,7 @@ isEventAdmin = (req, res, next) => {
 isEventAdminOrManager = (req, res, next) => {
   User.findByPk(req.userId).then((user) => {
     Event.findByPk(req.params.eventId).then((event) => {
-      if (user.id === event.adminId) {
+      if (user.id === event.userId) {
         next();
         return;
       } else {

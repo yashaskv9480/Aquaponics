@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
     description: {
       type: Sequelize.STRING
     },
+    thumbnailUrl: {
+      type: Sequelize.STRING
+    },
     startingDate: {
       type: Sequelize.DATE
     },

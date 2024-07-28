@@ -22,7 +22,7 @@ exports.signup = (req, res) => {
         }
       }).then(role => {
         user.setRoles([role.id]).then(() => {
-          res.send({ message: "User was registered successfully!" });
+          res.send({ message: "User was registered successfully!", username: user.username });
         });
       });
     })

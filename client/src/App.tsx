@@ -15,7 +15,6 @@ import User from "./pages/user/User";
 import Manager from "./pages/manager/Manager";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/notFound/NotFound";
-import Layout from "./components/Layout";
 import { UserProvider } from "./components/UserProvider";
 import { Toaster } from "@/components/ui/toaster";
 import CreateEvent from "./pages/event/createEvent/CreateEvent";
@@ -23,14 +22,19 @@ import CreateTicketType from "./pages/ticket/createTicketType/CreateTicketType";
 import CreateTasks from "./pages/task/createTasks/CreateTasks";
 import AssignManagers from "./pages/manager/assignManagers/AssignManagers";
 import BuyTicket from "./pages/ticket/buyTicket/BuyTicket";
+import AdminDashboardLayout from "./components/layout/AdminDashboardLayout";
+import ManagerDashboardLayout from "./components/layout/ManagerDashboardLayout";
+import UserDashboardLayout from "./components/layout/UserDashboardLayout";
+import CommonLayout from "./components/layout/CommonLayout";
 
 function App() {
   return (
     <Router>
       <UserProvider>
         <ThemeProvider defaultTheme="system" storageKey="ThemeMode">
-          <Layout>
-            <Routes>
+          <Routes>
+            {/* Routes With Default/Common Layout */}
+            <Route path="/" element={<CommonLayout />}>
               <Route path="/" element={<Home />} />
 
               {/* Authentication Routes */}
@@ -38,80 +42,21 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               {/* End of Authentication routes */}
 
-              {/* Admin Routes */}
-              <Route
-                path="/admin/:username"
-                element={
-                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
-                    <AdminDashboard />
-                  </authService.RequireAuth>
-                }
-              />
-              <Route
-                path="/admin/create-event"
-                element={
-                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
-                    <CreateEvent />
-                  </authService.RequireAuth>
-                }
-              />
-              <Route
-                path="/admin/create-ticket/:eventId"
-                element={
-                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
-                    <CreateTicketType />
-                  </authService.RequireAuth>
-                }
-              />
-              <Route
-                path="/admin/assign-managers/:eventId"
-                element={
-                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
-                    <AssignManagers />
-                  </authService.RequireAuth>
-                }
-              />
-              <Route
-                path="/admin/create-tasks/:eventId"
-                element={
-                  <authService.RequireAuth
-                    requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN"]}
-                  >
-                    <CreateTasks />
-                  </authService.RequireAuth>
-                }
-              />
-              {/* End of Admin Routes */}
+              {/* Ticket Routes */}
 
-              {/* Manager Routes */}
               <Route
-                path="/manager/:username"
-                element={
-                  <authService.RequireAuth requiredRoles={["ROLE_MANAGER"]}>
-                    <Manager />
-                  </authService.RequireAuth>
-                }
-              />
-              {/* End of Manager Routes */}
-
-              {/* User Routes */}
-              <Route
-                path="/user/:username"
+                path="/:eventId/buy-ticket/:ticketId"
                 element={
                   <authService.RequireAuth requiredRoles={["ROLE_USER"]}>
-                    <User />
+                    <BuyTicket />
                   </authService.RequireAuth>
                 }
               />
-              <Route
-                path="/user/:userId/tickets"
-                element={
-                  <authService.RequireAuth requiredRoles={["ROLE_USER"]}>
-                    <UserTickets />
-                  </authService.RequireAuth>
-                }
-              />
-              {/* End of User Routes */}
+
+              {/* End of Ticket Routes */}
+
+              {/* 404 NOT FOUND */}
+              <Route path="*" element={<NotFound />} />
 
               {/* Event Routes */}
               <Route
@@ -136,52 +81,127 @@ function App() {
               />
 
               {/* End of Event Routes */}
+            </Route>
+            {/* End of Routes With Default Layout */}
 
+            {/* Admin Routes */}
+            <Route path="/admin/*" element={<AdminDashboardLayout />}>
+              <Route
+                path=":username"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
+                    <AdminDashboard />
+                  </authService.RequireAuth>
+                }
+              />
+              <Route
+                path="create-event"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
+                    <CreateEvent />
+                  </authService.RequireAuth>
+                }
+              />
+              <Route
+                path="create-ticket/:eventId"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
+                    <CreateTicketType />
+                  </authService.RequireAuth>
+                }
+              />
+              <Route
+                path="assign-managers/:eventId"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
+                    <AssignManagers />
+                  </authService.RequireAuth>
+                }
+              />
+              <Route
+                path="create-tasks/:eventId"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
+                    <CreateTasks />
+                  </authService.RequireAuth>
+                }
+              />
               {/* Task Routes */}
               <Route
-                path="/event/:eventId/tasks"
+                path="event/:eventId/tasks"
                 element={
-                  <authService.RequireAuth
-                    requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN"]}
-                  >
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
                     <EventTasks />
                   </authService.RequireAuth>
                 }
               />
 
               <Route
-                path="/task/:taskId/messages"
+                path="task/:taskId/messages"
                 element={
-                  <authService.RequireAuth
-                    requiredRoles={["ROLE_MANAGER", "ROLE_ADMIN"]}
-                  >
+                  <authService.RequireAuth requiredRoles={["ROLE_ADMIN"]}>
                     <TaskMessages />
                   </authService.RequireAuth>
                 }
               />
-
               {/* End of Task Routes */}
+            </Route>
+            {/* End of Admin Routes */}
 
-              {/* Ticket Routes */}
-
+            {/* Manager Routes */}
+            <Route path="/manager/*" element={<ManagerDashboardLayout />}>
               <Route
-                path="/:eventId/buy-ticket/:ticketId"
+                path=":username"
                 element={
-                  <authService.RequireAuth
-                    requiredRoles={["ROLE_USER"]}
-                  >
-                    <BuyTicket />
+                  <authService.RequireAuth requiredRoles={["ROLE_MANAGER"]}>
+                    <Manager />
+                  </authService.RequireAuth>
+                }
+              />
+              {/* Task Routes */}
+              <Route
+                path="event/:eventId/tasks"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_MANAGER"]}>
+                    <EventTasks />
                   </authService.RequireAuth>
                 }
               />
 
-              {/* End of Ticket Routes */}
+              <Route
+                path="task/:taskId/messages"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_MANAGER"]}>
+                    <TaskMessages />
+                  </authService.RequireAuth>
+                }
+              />
+              {/* End of Task Routes */}
+            </Route>
+            {/* End of Manager Routes */}
 
-              {/* 404 NOT FOUND */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </Layout>
+            {/* User Routes */}
+            <Route path="/user/*" element={<UserDashboardLayout />}>
+              <Route
+                path=":username"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_USER"]}>
+                    <User />
+                  </authService.RequireAuth>
+                }
+              />
+              <Route
+                path=":userId/tickets"
+                element={
+                  <authService.RequireAuth requiredRoles={["ROLE_USER"]}>
+                    <UserTickets />
+                  </authService.RequireAuth>
+                }
+              />
+            </Route>
+            {/* End of User Routes */}
+          </Routes>
+          <Toaster />
         </ThemeProvider>
       </UserProvider>
     </Router>

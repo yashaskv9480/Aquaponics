@@ -39,7 +39,9 @@ export default function SignUp() {
       .signUp(values.username, values.email, values.password)
       .then((user) => {
         // Show success message
-        setSuccessAlert(`User ${user.username} was registered successfully!`);
+        setSuccessAlert(
+          `User ${user.username} was registered successfully!`
+        );
         // Redirect to /signin after 3 seconds
         setTimeout(() => navigate("/signin"), 3000);
       })
@@ -92,7 +94,7 @@ export default function SignUp() {
             {/* FormField for 'email' */}
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
