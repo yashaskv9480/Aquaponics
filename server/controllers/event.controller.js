@@ -5,7 +5,7 @@ const upload = require('../middleware/multer');
 
 // Create an event
 exports.createEvent = [
-  upload.single('thumbnail'), // 'thumbnail' is the name of the field in your form
+  upload.single('thumbnail'), 
   (req, res) => {
     const {
       name,

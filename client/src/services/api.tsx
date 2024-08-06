@@ -2,7 +2,7 @@ import axios from 'axios';
 import authHeader from './auth/auth-header';
 
 const api = axios.create({
-  baseURL: '/api', // your base URL
+  baseURL: '/api', 
 });
 
 // Add a request interceptor
